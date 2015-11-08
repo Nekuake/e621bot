@@ -6,8 +6,9 @@ from bot_util import json_get
 
 ORDER_REGEX = re.compile(r'\border:\w+\b', re.IGNORECASE)
 
-class e621Source:
-	def __init__(self, api_user = None, api_pass = None):
+class ESource:
+	def __init__(self, domain, api_user = None, api_pass = None):
+		self.domain = domain
 		self.api_user = api_user
 		self.api_pass = api_pass
 
@@ -23,15 +24,21 @@ class e621Source:
 		}
 
 		images = []
-		blobs = json_get('https://e621.net/post/index.json', params)
+		blobs = json_get('%s/post/index.json' % (self.domain), params)
 		for blob in blobs:
+			image = blob['sample_url']
+			if image[0:2] == '//':
+				image = 'http:' + image
+			elif image[0:8] != 'https://' and image[0:7] != 'http://':
+				image = 'http://' + image
+
 			images.append({
-				'image': blob['sample_url'],
+				'image': image,
 				'rating': blob['rating'],
-				'post_url': 'https://e621.net/post/view/%d' % (blob['id'])
+				'post_url': '%s/post/view/%d' % (self.domain, blob['id'])
 			})
 
 		return images
 
 	def __repr__(self):
-		return 'e621Source(api_user = %s, api_pass = %s)' % (self.api_user, self.api_pass)
+		return 'ESource(domain = %s, api_user = %s, api_pass = %s)' % (self.domain, self.api_user, self.api_pass)
