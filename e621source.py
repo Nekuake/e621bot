@@ -32,3 +32,6 @@ class e621Source:
 			})
 
 		return images
+
+	def __repr__(self):
+		return 'e621Source(api_user = %s, api_pass = %s)' % (self.api_user, self.api_pass)

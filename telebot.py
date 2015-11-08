@@ -4,6 +4,7 @@ from bot_util import json_get
 import re
 import time
 import threading
+import socket
 
 CMD_REGEX = re.compile(r'\/([a-z]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
 
@@ -28,7 +29,10 @@ class TeleBot:
 			'offset': start,
 			'timeout': timeout
 		}
-		return self.request('getUpdates', params, timeout)
+		try:
+			return self.request('getUpdates', params, timeout)
+		except socket.timeout:
+			return []
 
 	def send_message(self, chat, text, replyTo = None):
 		params = {
@@ -92,7 +96,7 @@ class TeleBot:
 
 		if async:
 			threading.Thread(target = async_command, args = (self, update, info)).start()
-		else
+		else:
 			async_command(self, update, info)
 
 	def run_iteration(self):

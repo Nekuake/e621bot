@@ -23,3 +23,6 @@ class BooruCommand:
 			return txt
 
 		return 'Sorry, no images has been found by "%s"' % (request)
+
+	def __repr__(self):
+		return 'BooruCommand(engine = %s)' % (self.engine)
