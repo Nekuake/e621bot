@@ -3,6 +3,7 @@
 from bot_util import json_get
 import re
 import time
+import threading
 
 CMD_REGEX = re.compile(r'\/([a-z]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
 
@@ -68,7 +69,7 @@ class TeleBot:
 			'params': params
 		}
 
-	def handle_update(self, update):
+	def handle_update(self, update, async = True):
 		if not 'text' in update['message']:
 			return
 
@@ -76,16 +77,23 @@ class TeleBot:
 		if not info:
 			return
 
-		print('Servicing %s' % (repr(info)))
-		try:
-			self.execute_command(
-					update['message']['chat']['id'],
-					info['command'],
-					info['params'],
-					update['message']['message_id']
-			)
-		except Exception as e:
-			print('Got an exception attempting to execute request: %s' % (repr(e)))
+		def async_command(bot, update, info):
+			print('Servicing %s' % (repr(info)))
+
+			try:
+				bot.execute_command(
+						update['message']['chat']['id'],
+						info['command'],
+						info['params'],
+						update['message']['message_id']
+				)
+			except Exception as e:
+				print('Got an exception attempting to execute request: %s' % (repr(e)))
+
+		if async:
+			threading.Thread(target = async_command, args = (self, update, info)).start()
+		else
+			async_command(self, update, info)
 
 	def run_iteration(self):
 		updates = []
