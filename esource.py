@@ -28,7 +28,7 @@ class ESource:
 		for blob in blobs:
 			image = blob['sample_url']
 			if image[0:2] == '//':
-				image = 'http:' + image
+				image = self.domain[0:self.domain.index(':') + 1] + image
 			elif image[0:8] != 'https://' and image[0:7] != 'http://':
 				image = 'http://' + image
 
