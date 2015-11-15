@@ -14,6 +14,13 @@ class BooruCommand:
 		return 'unknown (%s)' % (rating)
 
 	def execute(self, request):
+		request = self.engine.prepare(request)
+
+		# Normalize requests to lower case and sort alphabetically
+		tags = request.lower().split()
+		tags.sort()
+		request = ' '.join(tags)
+
 		images = self.engine.search(request, 1)
 
 		if images:
