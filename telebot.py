@@ -6,7 +6,7 @@ import time
 import threading
 import socket
 
-CMD_REGEX = re.compile(r'\/([a-z]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
+CMD_REGEX = re.compile(r'\/([a-z0-9]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
 
 class TeleBot:
 	def __init__(self, apikey, name, commands):
