@@ -12,6 +12,7 @@ bot = TeleBot(
 	{
 		'yiff': BooruCommand(ESource('https://e621.net')),
 		'furry': BooruCommand(ESource('https://e926.net')),
+		'r34': BooruCommand(GelbooruSource('http://rule34.xxx')),
 		'gb': StaticCommand('This command is WIP')
 	}
 )
