@@ -31,13 +31,15 @@ class ESource:
 			image = blob['sample_url']
 			if image[0:2] == '//':
 				image = self.domain[0:self.domain.index(':') + 1] + image
+			elif image[0:1] == '/':
+				image = self.domain + image
 			elif image[0:8] != 'https://' and image[0:7] != 'http://':
 				image = 'http://' + image
 
 			images.append({
 				'image': image,
 				'rating': blob['rating'],
-				'post_url': '%s/post/view/%d' % (self.domain, blob['id'])
+				'post_url': '%s/post/show/%d' % (self.domain, blob['id'])
 			})
 
 		return images
