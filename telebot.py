@@ -3,17 +3,22 @@
 from bot_util import json_get
 import re
 import time
-import threading
+import concurrent.futures;
 import socket
 
 CMD_REGEX = re.compile(r'\/([a-z0-9]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
 
 class TeleBot:
-	def __init__(self, apikey, name, commands):
+	def __init__(self, apikey, name, commands, workers = 5):
 		self.apikey = apikey
 		self.name = name
 		self.commands = commands
 		self.lastUpdate = 0
+
+		if workers:
+			self.workerPool = concurrent.futures.ThreadPoolExecutor(max_workers = workers)
+		else:
+			self.workerPool = None
 
 	def request(self, op, params, timeout = 10):
 		url = 'https://api.telegram.org/bot%s/%s' % (self.apikey, op)
@@ -73,7 +78,7 @@ class TeleBot:
 			'params': params
 		}
 
-	def handle_update(self, update, async = True):
+	def handle_update(self, update):
 		if not 'text' in update['message']:
 			return
 
@@ -94,8 +99,8 @@ class TeleBot:
 			except Exception as e:
 				print('Got an exception attempting to execute request: %s' % (repr(e)))
 
-		if async:
-			threading.Thread(target = async_command, args = (self, update, info)).start()
+		if self.workerPool:
+			self.workerPool.submit(async_command, self, update, info)
 		else:
 			async_command(self, update, info)
 
