@@ -5,7 +5,7 @@ class StaticCommand:
 		self.message = message
 
 	def execute(self, request):
-		return self.message
+		request.reply(self.message)
 
 	def __repr__(self):
 		return 'StaticCommand(message = %s)' % (self.message)

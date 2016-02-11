@@ -12,14 +12,13 @@ class ESource:
 		self.api_user = api_user
 		self.api_pass = api_pass
 
-	def prepare(self, tags):
-		if not re.search(ORDER_REGEX, tags):
-			tags = tags + ' order:random'
-		return tags
+	def prepare(self, request):
+		if not re.search(ORDER_REGEX, request.params):
+			request.params = request.params + ' order:random'
 
-	def search(self, tags, limit = 50):
+	def search(self, request, limit = 50):
 		params = {
-			'tags': tags,
+			'tags': request.params,
 			'limit': limit,
 			'login': self.api_user,
 			'password_hash': self.api_pass

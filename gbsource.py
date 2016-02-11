@@ -12,18 +12,18 @@ class GelbooruSource:
 	def __init__(self, domain):
 		self.domain = domain
 
-	def prepare(self, tags):
-		return tags
+	def prepare(self, request):
+		return
 
-	def search(self, tags, limit = 1):
+	def search(self, request, limit = 1):
 		# simulate order:random by choosing a random page
-		if not re.search(ORDER_REGEX, tags):
+		if not re.search(ORDER_REGEX, request.params):
 			params = {
 				'page': 'dapi',
 				's': 'post',
 				'q': 'index',
 				'limit': 0,
-				'tags': tags
+				'tags': request.params
 			}
 
 			req = xml_get('%s/index.php' % (self.domain), params)
@@ -40,7 +40,7 @@ class GelbooruSource:
 			's': 'post',
 			'q': 'index',
 			'limit': limit,
-			'tags': tags,
+			'tags': request.params,
 			'pid': page
 		}
 		blobs = xml_get('%s/index.php' % (self.domain), params)

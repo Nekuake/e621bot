@@ -14,12 +14,12 @@ class BooruCommand:
 		return 'unknown (%s)' % (rating)
 
 	def execute(self, request):
-		request = self.engine.prepare(request)
+		self.engine.prepare(request)
 
 		# Normalize requests to lower case and sort alphabetically
-		tags = request.lower().split()
+		tags = request.params.lower().split()
 		tags.sort()
-		request = ' '.join(tags)
+		request.params = ' '.join(tags)
 
 		images = self.engine.search(request, 1)
 
@@ -27,9 +27,9 @@ class BooruCommand:
 			txt  = 'Image: %s\n' % (images[0]['image'])
 			txt += 'Post: %s\n' % (images[0]['post_url'])
 			txt += 'Rating: %s\n' % (self.rating(images[0]['rating']))
-			return txt
-
-		return 'Sorry, no images has been found by "%s"' % (request)
+			request.reply(txt)
+		else:
+			request.reply('Sorry, no images has been found by "%s"' % (request))
 
 	def __repr__(self):
 		return 'BooruCommand(engine = %s)' % (self.engine)

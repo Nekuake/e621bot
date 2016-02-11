@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from bot_util import json_get
+from request import Request
 import re
 import time
 import concurrent.futures;
@@ -47,62 +48,26 @@ class TeleBot:
 		}
 		return self.request('sendMessage', params)
 
-	def execute_command(self, chat, command, params, replyTo = None):
-		try:
-			reply = command.execute(params)
-		except Exception as e:
-			reply = 'Got an exception attempting to serve your request: %s' % (str(e))
-
-		self.send_message(chat, reply, replyTo)
-
-	def parse_message(self, message):
-		matches = re.match(CMD_REGEX, message)
-		if not matches:
-			return None
-
-		botname = matches.group(2)
-		if botname and botname.casefold() != self.name.casefold():
-			return None
-
-		try:
-			command = self.commands[matches.group(1).casefold()]
-		except KeyError:
-			return
-
-		params = matches.group(3)
-		if not params:
-			params = ''
-
-		return {
-			'command': command,
-			'params': params
-		}
-
 	def handle_update(self, update):
-		if not 'text' in update['message']:
+		try:
+			request = Request(self, update)
+		except Exception as e:
+			print('Could not parse request: %s' % (repr(e)))
 			return
 
-		info = self.parse_message(update['message']['text'])
-		if not info:
-			return
-
-		def async_command(bot, update, info):
-			print('Servicing %s' % (repr(info)))
+		def async_command(request):
+			print('Servicing %s' % (repr(request)))
 
 			try:
-				bot.execute_command(
-						update['message']['chat']['id'],
-						info['command'],
-						info['params'],
-						update['message']['message_id']
-				)
+				request.execute()
 			except Exception as e:
-				print('Got an exception attempting to execute request: %s' % (repr(e)))
+				request.reply('Got an exception attempting to execute request: %s' % (repr(e)))
+
 
 		if self.workerPool:
-			self.workerPool.submit(async_command, self, update, info)
+			self.workerPool.submit(async_command, request)
 		else:
-			async_command(self, update, info)
+			async_command(request)
 
 	def run_iteration(self):
 		updates = []
