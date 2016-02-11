@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from bot_util import json_get
 import re
-import time
-import concurrent.futures;
-import socket
 
 CMD_REGEX = re.compile(r'\/([a-z0-9]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
 

@@ -2,8 +2,6 @@
 
 import re
 
-from bot_util import json_get
-
 ORDER_REGEX = re.compile(r'\border:\w+\b', re.IGNORECASE)
 
 class ESource:
@@ -25,7 +23,7 @@ class ESource:
 		}
 
 		images = []
-		blobs = json_get('%s/post/index.json' % (self.domain), params)
+		blobs = request.bot.httpClient.getJSON('%s/post/index.json' % (self.domain), params)
 		for blob in blobs:
 			image = blob['sample_url']
 			if image[0:2] == '//':

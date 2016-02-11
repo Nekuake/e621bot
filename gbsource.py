@@ -4,8 +4,6 @@ import re
 import random
 import math
 
-from bot_util import xml_get
-
 ORDER_REGEX = re.compile(r'\border:\w+\b', re.IGNORECASE)
 
 class GelbooruSource:
@@ -26,7 +24,7 @@ class GelbooruSource:
 				'tags': request.params
 			}
 
-			req = xml_get('%s/index.php' % (self.domain), params)
+			req = request.bot.httpClient.getXML('%s/index.php' % (self.domain), params)
 			count = int(req.get('count'))
 			if count == 0:
 				return []
@@ -43,7 +41,7 @@ class GelbooruSource:
 			'tags': request.params,
 			'pid': page
 		}
-		blobs = xml_get('%s/index.php' % (self.domain), params)
+		blobs = request.bot.httpClient.getXML('%s/index.php' % (self.domain), params)
 
 		images = []
 		for blob in blobs:

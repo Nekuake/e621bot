@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from bot_util import json_get
+from httpclient import HttpClient
 from request import Request
 import re
 import time
@@ -21,22 +21,25 @@ class TeleBot:
 		else:
 			self.workerPool = None
 
-	def request(self, op, params, timeout = 10):
+		self.httpClient = HttpClient()
+		self.httpClient.userAgent = 'Telegram Bot (@%s)' % (name)
+
+	def request(self, op, params):
 		url = 'https://api.telegram.org/bot%s/%s' % (self.apikey, op)
 
-		reply = json_get(url, params, timeout)
+		reply = self.httpClient.getJSON(url, params)
 		if not reply['ok']:
 			raise ValueError('Telegram replied with an error')
 
 		return reply['result']
 
-	def get_updates(self, start, timeout = 300):
+	def get_updates(self, start):
 		params = {
 			'offset': start,
-			'timeout': timeout
+			'timeout': self.httpClient.timeout
 		}
 		try:
-			return self.request('getUpdates', params, timeout)
+			return self.request('getUpdates', params)
 		except socket.timeout:
 			return []
 
