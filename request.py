@@ -37,7 +37,6 @@ class Request:
 		self.command.execute(self)
 
 	def reply(self, text):
-		print("Reply %s\n" % (text))
 		self.bot.send_message(self.chat['id'], text, self.id)
 		return
 
