@@ -9,6 +9,7 @@ ORDER_REGEX = re.compile(r'\border:\w+\b', re.IGNORECASE)
 class GelbooruSource:
 	def __init__(self, domain):
 		self.domain = domain
+		self.tagLimit = None
 
 	def prepare(self, request):
 		return

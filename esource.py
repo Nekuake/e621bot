@@ -5,10 +5,11 @@ import re
 ORDER_REGEX = re.compile(r'\border:\w+\b', re.IGNORECASE)
 
 class ESource:
-	def __init__(self, domain, api_user = None, api_pass = None):
+	def __init__(self, domain, api_user = None, api_pass = None, tagLimit = None):
 		self.domain = domain
 		self.api_user = api_user
 		self.api_pass = api_pass
+		self.tagLimit = tagLimit
 
 	def prepare(self, request):
 		if not re.search(ORDER_REGEX, request.params):

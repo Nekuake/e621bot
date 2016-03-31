@@ -59,7 +59,7 @@ class TeleBot:
 			return
 
 		def async_command(request):
-			print('Servicing %s' % (repr(request)))
+			print('Servicing %s' % (request.readable))
 
 			try:
 				request.execute()

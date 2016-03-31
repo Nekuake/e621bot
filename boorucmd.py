@@ -21,6 +21,10 @@ class BooruCommand:
 		tags.sort()
 		request.params = ' '.join(tags)
 
+		if self.engine.tagLimit and len(tags) > self.engine.tagLimit:
+			request.reply('Sorry, this command has a limit of %d tags, and therefore "%s" can\' be processed.' % (self.engine.tagLimit, request.params))
+			return
+
 		images = self.engine.search(request, 1)
 
 		if images:
@@ -29,7 +33,7 @@ class BooruCommand:
 			txt += 'Rating: %s\n' % (self.rating(images[0]['rating']))
 			request.reply(txt)
 		else:
-			request.reply('Sorry, no images has been found by "%s"' % (request))
+			request.reply('Sorry, no images has been found by "%s"' % (request.params))
 
 	def __repr__(self):
 		return 'BooruCommand(engine = %s)' % (self.engine)

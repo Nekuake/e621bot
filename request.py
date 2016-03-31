@@ -20,7 +20,8 @@ class Request:
 			raise ValueError("Not for this bot")
 
 		try:
-			self.command = bot.commands[matches.group(1).casefold()]
+			self.commandName = matches.group(1).casefold()
+			self.command = bot.commands[self.commandName]
 		except KeyError:
 			raise ValueError("Command not found")
 
@@ -46,3 +47,7 @@ class Request:
 			'reply_to_message_id': replyTo
 		}
 		return self.request('sendMessage', params)
+
+	@property
+	def readable(self):
+		return "/%s %s" % (self.commandName, self.params)
