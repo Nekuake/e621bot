@@ -2,9 +2,10 @@
 
 from httpclient import HttpClient
 from request import Request
+from threading import Semaphore
 import re
 import time
-import concurrent.futures;
+import concurrent.futures
 import socket
 
 CMD_REGEX = re.compile(r'\/([a-z0-9]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
@@ -18,6 +19,7 @@ class TeleBot:
 		self.updateTimeout = 30
 
 		self.workerPool = concurrent.futures.ThreadPoolExecutor(max_workers = workers)
+		self.workerSemaphore = Semaphore(workers)
 
 		self.httpClient = HttpClient()
 		self.httpClient.userAgent = 'Telegram Bot (@%s)' % (name)
@@ -50,6 +52,8 @@ class TeleBot:
 		return self.request('sendMessage', params)
 
 	def handle_update(self, update):
+		workerSemaphore = self.workerSemaphore
+
 		try:
 			request = Request(self, update)
 		except Exception as e:
@@ -64,7 +68,13 @@ class TeleBot:
 			except Exception as e:
 				request.reply('Got an exception attempting to execute request: %s' % (repr(e)))
 
-		self.workerPool.submit(async_command, request)
+		# Running it on callback ensures it will *always* free the semaphore no matter what the hell happens with the task
+		def free_lock(future):
+			workerSemaphore.release()
+
+		workerSemaphore.acquire()
+		future = self.workerPool.submit(async_command, request)
+		future.add_done_callback(free_lock)
 
 	def run_iteration(self):
 		updates = []
