@@ -17,10 +17,7 @@ class TeleBot:
 		self.lastUpdate = 0
 		self.updateTimeout = 30
 
-		if workers:
-			self.workerPool = concurrent.futures.ThreadPoolExecutor(max_workers = workers)
-		else:
-			self.workerPool = None
+		self.workerPool = concurrent.futures.ThreadPoolExecutor(max_workers = workers)
 
 		self.httpClient = HttpClient()
 		self.httpClient.userAgent = 'Telegram Bot (@%s)' % (name)
@@ -67,11 +64,7 @@ class TeleBot:
 			except Exception as e:
 				request.reply('Got an exception attempting to execute request: %s' % (repr(e)))
 
-
-		if self.workerPool:
-			self.workerPool.submit(async_command, request)
-		else:
-			async_command(request)
+		self.workerPool.submit(async_command, request)
 
 	def run_iteration(self):
 		updates = []
