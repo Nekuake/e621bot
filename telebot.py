@@ -89,5 +89,11 @@ class TeleBot:
 			self.lastUpdate = max(self.lastUpdate, update['update_id'] + 1)
 
 	def run_main(self):
-		while True:
-			self.run_iteration()
+		try:
+			while True:
+				self.run_iteration()
+		except KeyboardInterrupt:
+			pass
+
+		print('Shutting down...')
+		self.workerPool.shutdown()
