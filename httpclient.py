@@ -17,24 +17,28 @@ def filter_null_values(orig):
 
 class HttpClient:
 	def __init__(self):
-		self.timeout = 30
+		self.timeout = 5
 		self.userAgent = None;
 
-	def get(self, url, params = {}):
+	def get(self, url, params = {}, **kwargs):
 		params = filter_null_values(params)
 		if params != {}:
 			url = '%s?%s' % (url, urllib.parse.urlencode(params))
+
+		timeout = self.timeout
+		if 'timeout' in kwargs:
+			timeout = kwargs['timeout']
 
 		headers = filter_null_values({
 			'User-Agent': self.userAgent
 		})
 
 		request = urllib.request.Request(url, headers = headers)
-		response = urllib.request.urlopen(request, timeout = self.timeout)
+		response = urllib.request.urlopen(request, timeout = timeout)
 		return response.read()
 
-	def getJSON(self, url, params = {}):
-		return json.loads(self.get(url, params).decode('utf-8'))
+	def getJSON(self, *args, **kwargs):
+		return json.loads(self.get(*args, **kwargs).decode('utf-8'))
 
-	def getXML(self, url, params = {}):
-		return etree.fromstring(self.get(url, params))
+	def getXML(self, *args, **kwargs):
+		return etree.fromstring(self.get(*args, **kwargs))

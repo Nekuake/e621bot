@@ -15,6 +15,7 @@ class TeleBot:
 		self.name = name
 		self.commands = commands
 		self.lastUpdate = 0
+		self.updateTimeout = 30
 
 		if workers:
 			self.workerPool = concurrent.futures.ThreadPoolExecutor(max_workers = workers)
@@ -24,10 +25,10 @@ class TeleBot:
 		self.httpClient = HttpClient()
 		self.httpClient.userAgent = 'Telegram Bot (@%s)' % (name)
 
-	def request(self, op, params):
+	def request(self, op, params, **kwargs):
 		url = 'https://api.telegram.org/bot%s/%s' % (self.apikey, op)
 
-		reply = self.httpClient.getJSON(url, params)
+		reply = self.httpClient.getJSON(url, params, **kwargs)
 		if not reply['ok']:
 			raise ValueError('Telegram replied with an error')
 
@@ -36,10 +37,10 @@ class TeleBot:
 	def get_updates(self, start):
 		params = {
 			'offset': start,
-			'timeout': self.httpClient.timeout
+			'timeout': self.updateTimeout
 		}
 		try:
-			return self.request('getUpdates', params)
+			return self.request('getUpdates', params, timeout = self.updateTimeout)
 		except socket.timeout:
 			return []
 
