@@ -28,10 +28,10 @@ class BooruCommand:
 		images = self.engine.search(request, 1)
 
 		if images:
-			txt  = 'Image: %s\n' % (images[0]['image'])
-			txt += 'Post: %s\n' % (images[0]['post_url'])
-			txt += 'Rating: %s\n' % (self.rating(images[0]['rating']))
-			request.reply(txt)
+			txt  = '[Image](%s) - ' % (images[0]['image'])
+			txt += '[Post](%s) - ' % (images[0]['post_url'])
+			txt += '*%s*' % (self.rating(images[0]['rating']))
+			request.reply(txt, 'Markdown')
 		else:
 			request.reply('Sorry, no images has been found by "%s"' % (request.params))
 

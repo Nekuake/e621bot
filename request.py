@@ -37,16 +37,8 @@ class Request:
 	def execute(self):
 		self.command.execute(self)
 
-	def reply(self, text):
-		self.bot.send_message(self.chat['id'], text, self.id)
-		return
-
-		params = {
-			'chat_id': chat,
-			'text': text,
-			'reply_to_message_id': replyTo
-		}
-		return self.request('sendMessage', params)
+	def reply(self, text, markup = None):
+		self.bot.send_message(self.chat['id'], text, reply_to=self.id, markup=markup)
 
 	@property
 	def readable(self):

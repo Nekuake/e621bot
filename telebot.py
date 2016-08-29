@@ -43,11 +43,12 @@ class TeleBot:
 		except socket.timeout:
 			return []
 
-	def send_message(self, chat, text, replyTo = None):
+	def send_message(self, chat, text, **kwargs):
 		params = {
 			'chat_id': chat,
 			'text': text,
-			'reply_to_message_id': replyTo
+			'reply_to_message_id': kwargs.pop('reply_to', None),
+			'parse_mode': kwargs.pop('markup', None)
 		}
 		return self.request('sendMessage', params)
 
