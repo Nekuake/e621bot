@@ -5,6 +5,7 @@ from telebot import TeleBot
 from esource import ESource
 from boorucmd import BooruCommand
 from staticcmd import StaticCommand
+from gbsource import GelbooruSource
 
 bot = TeleBot(
 	'YOUR TELEGRAM API KEY',
