@@ -9,7 +9,7 @@ class StaticCommand:
 		self.messages = messages
 
 	def execute(self, request):
-		request.reply(random.choice(self.messages))
+		request.reply(random.choice(self.messages), 'Markdown')
 
 	def __repr__(self):
 		return 'StaticCommand(messages = %s)' % (self.messages)
