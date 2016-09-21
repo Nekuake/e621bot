@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from urllib.parse import urljoin
 
 ORDER_REGEX = re.compile(r'\border:\w+\b', re.IGNORECASE)
 
@@ -26,14 +27,7 @@ class ESource:
 		images = []
 		blobs = request.bot.httpClient.getJSON('%s/post/index.json' % (self.domain), params)
 		for blob in blobs:
-			image = blob['sample_url']
-			if image[0:2] == '//':
-				image = self.domain[0:self.domain.index(':') + 1] + image
-			elif image[0:1] == '/':
-				image = self.domain + image
-			elif image[0:8] != 'https://' and image[0:7] != 'http://':
-				image = 'http://' + image
-
+			image = urljoin(self.domain, blob['sample_url'])
 			images.append({
 				'image': image,
 				'rating': blob['rating'],

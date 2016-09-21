@@ -3,6 +3,7 @@
 import re
 import random
 import math
+from urllib.parse import urljoin
 
 ORDER_REGEX = re.compile(r'\border:\w+\b', re.IGNORECASE)
 
@@ -47,7 +48,7 @@ class GelbooruSource:
 		images = []
 		for blob in blobs:
 			images.append({
-				'image': blob.get('sample_url'),
+				'image': urljoin(self.domain, blob.get('sample_url')),
 				'rating': blob.get('rating'),
 				'post_url': '%s/index.php?page=post&s=view&id=%s' % (self.domain, blob.get('id'))
 			})
