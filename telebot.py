@@ -29,7 +29,7 @@ class TeleBot:
 
 		reply = self.httpClient.getJSON(url, params, **kwargs)
 		if not reply['ok']:
-			raise ValueError('Telegram replied with an error')
+			raise ValueError('Telegram replied with an error: %s' % repr(reply))
 
 		return reply['result']
 
