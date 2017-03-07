@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from threading import Lock
+from cachetools import LRUCache
+
 class BooruCommand:
-	def __init__(self, engine):
+	def __init__(self, engine, cache_size=1024, images_per_search=16):
 		self.engine = engine
+		self.cache = LRUCache(maxsize=cache_size, missing=lambda key: list())
+		self.cache_lock = Lock()
+		self.images_per_search = images_per_search
 
 	def rating(self, rating):
 		if rating == 's':
@@ -13,6 +19,26 @@ class BooruCommand:
 			return 'explicit'
 		return 'unknown (%s)' % (rating)
 
+	def get_image(self, request):
+		# First try fetching one from cache
+		with self.cache_lock:
+			try:
+				return self.cache[request.params].pop()
+			except:
+				pass
+
+		# If it fails, fetch one from the engine
+		found_images = self.engine.search(request, self.images_per_search)
+		if len(found_images) == 0:
+			return None
+
+		image = found_images.pop()
+		if len(found_images) > 0:
+			with self.cache_lock:
+				self.cache[request.params].extend(found_images)
+
+		return image
+
 	def execute(self, request):
 		self.engine.prepare(request)
 
@@ -22,18 +48,17 @@ class BooruCommand:
 		request.params = ' '.join(tags)
 
 		if self.engine.tagLimit and len(tags) > self.engine.tagLimit:
-			request.reply('Sorry, this command has a limit of %d tags, and therefore "%s" can\' be processed.' % (self.engine.tagLimit, request.params))
+			request.reply('Sorry, this command has a limit of %d tags, and therefore "%s" can\'t be processed.' % (self.engine.tagLimit, request.params))
 			return
 
-		images = self.engine.search(request, 1)
-
-		if images:
-			txt  = '[Image](%s) - ' % (images[0]['image'])
-			txt += '[Post](%s) - ' % (images[0]['post_url'])
-			txt += '*%s*' % (self.rating(images[0]['rating']))
+		image = self.get_image(request)
+		if image:
+			txt  = '[Image](%s) - ' % (image['image'])
+			txt += '[Post](%s) - ' % (image['post_url'])
+			txt += '*%s*' % (self.rating(image['rating']))
 			request.reply(txt, 'Markdown')
 		else:
-			request.reply('Sorry, no images has been found by "%s"' % (request.params))
+			request.reply('Sorry, no images found by "%s"' % (request.params))
 
 	def __repr__(self):
 		return 'BooruCommand(engine = %s)' % (self.engine)
