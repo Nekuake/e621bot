@@ -7,6 +7,7 @@ import re
 import time
 import concurrent.futures
 import socket
+import requests.exceptions
 
 CMD_REGEX = re.compile(r'\/([a-z0-9]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
 
@@ -40,7 +41,7 @@ class TeleBot:
 		}
 		try:
 			return self.request('getUpdates', params, timeout = self.updateTimeout)
-		except socket.timeout:
+		except requests.exceptions.Timeout:
 			return []
 
 	def send_message(self, chat, text, **kwargs):
