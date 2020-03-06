@@ -62,6 +62,7 @@ class TeleBot:
 			request = Request(self, update)
 		except InvalidRequestException as e:
 			logging.debug('Invalid request received: ' + str(e))
+			return
 		except Exception as e:
 			logging.exception('Unexpected exception handling request')
 			return
