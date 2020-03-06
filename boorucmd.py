@@ -3,10 +3,14 @@
 from threading import Lock
 from cachetools import LRUCache
 
+class ListLRUCache(LRUCache):
+	def __missing__(self, key):
+		return list()
+
 class BooruCommand:
 	def __init__(self, engine, cache_size=1024, images_per_search=16):
 		self.engine = engine
-		self.cache = LRUCache(maxsize=cache_size, missing=lambda key: list())
+		self.cache = ListLRUCache(maxsize=cache_size)
 		self.cache_lock = Lock()
 		self.images_per_search = images_per_search
 
