@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from httpclient import HttpClient
-from request import Request
+from request import Request, InvalidRequestException
 from threading import Semaphore
 import re
 import time
 import concurrent.futures
 import socket
 import requests.exceptions
+import traceback
+import logging
 
 CMD_REGEX = re.compile(r'\/([a-z0-9]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
 
@@ -58,17 +60,23 @@ class TeleBot:
 
 		try:
 			request = Request(self, update)
+		except InvalidRequestException as e:
+			logging.debug('Invalid request received: ' + str(e))
 		except Exception as e:
-			print('Could not parse request: %s' % (repr(e)))
+			logging.exception('Unexpected exception handling request')
 			return
 
 		def async_command(request):
-			print('Servicing %s' % (request.readable))
+			logging.info('Servicing %s' % (request.readable))
 
 			try:
 				request.execute()
 			except Exception as e:
-				request.reply('Got an exception attempting to execute request: %s' % (repr(e)))
+				logging.exception('Failed to run request handler')
+				try:
+					request.reply('Got an exception attempting to execute request: %s' % str(e))
+				except:
+					pass
 
 		# Running it on callback ensures it will *always* free the semaphore no matter what the hell happens with the task
 		def free_lock(future):
@@ -83,7 +91,7 @@ class TeleBot:
 		try:
 			updates = self.get_updates(self.lastUpdate)
 		except Exception as e:
-			print('Got exception reading server status: ' + str(e))
+			logging.exception('Got exception reading server status')
 			time.sleep(3)
 
 		for update in updates:
@@ -97,5 +105,5 @@ class TeleBot:
 		except KeyboardInterrupt:
 			pass
 
-		print('Shutting down...')
+		logging.warning('Shutting down...')
 		self.workerPool.shutdown()
