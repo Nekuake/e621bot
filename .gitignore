@@ -1,3 +1,7 @@
 __pycache__/
 bot.*.py
 *.pyc
+
+.idea/inspectionProfiles/
+
+.idea/

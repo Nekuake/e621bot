@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import logging
 import re
 import random
 import math
@@ -25,7 +25,7 @@ class GelbooruSource:
 				'limit': 0,
 				'tags': request.params
 			}
-
+			logging.warning("Request:"+request.author["username"], " : ", request.params["readable"])
 			req = request.bot.httpClient.getXML('%s/index.php' % (self.domain), params)
 			count = int(req.get('count'))
 			if count == 0:

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import time
 from urllib.parse import urljoin
 
 ORDER_REGEX = re.compile(r'\border:\w+\b', re.IGNORECASE)
@@ -14,7 +15,7 @@ class ESource:
 
 	def prepare(self, request):
 		if not re.search(ORDER_REGEX, request.params):
-			request.params = request.params + ' order:random'
+			request.params = request.params + ' order:random randseed:' + str(time.time())
 
 	def _get_sample_img(self, post):
 		if post['sample']['has'] == True:
@@ -31,7 +32,7 @@ class ESource:
 		if 'posts' not in reply:
 			raise Exception('Query succeeded but posts are missing!')
 
-	def search(self, request, limit = 50):
+	def search(self, request, limit = 5):
 		params = {
 			'tags': request.params,
 			'limit': limit,

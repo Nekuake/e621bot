@@ -10,6 +10,7 @@ import socket
 import requests.exceptions
 import traceback
 import logging
+import datetime
 
 CMD_REGEX = re.compile(r'\/([a-z0-9]+)(?:@([a-z0-9_]+))?(?:\s+(.*))?', re.IGNORECASE)
 
@@ -26,7 +27,6 @@ class TeleBot:
 
 		self.httpClient = HttpClient()
 		self.httpClient.userAgent = 'Telegram Bot (@%s)' % (name)
-
 	def request(self, op, params, **kwargs):
 		url = 'https://api.telegram.org/bot%s/%s' % (self.apikey, op)
 
@@ -57,11 +57,11 @@ class TeleBot:
 
 	def handle_update(self, update):
 		workerSemaphore = self.workerSemaphore
-
+		logging.info(str(datetime.datetime.now()) + " REQUEST:" + update["message"]["from"]["username"] + update["message"]["text"])
 		try:
 			request = Request(self, update)
 		except InvalidRequestException as e:
-			logging.debug('Invalid request received: ' + str(e))
+			logging.warning('Invalid request received: ' + str(e))
 			return
 		except Exception as e:
 			logging.exception('Unexpected exception handling request')

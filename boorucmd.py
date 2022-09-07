@@ -50,7 +50,7 @@ class BooruCommand:
 		tags = request.params.lower().split()
 		tags.sort()
 		request.params = ' '.join(tags)
-
+		print("Request: ", request.author["username"] + ": "+ request.readable.lower())
 		if self.engine.tagLimit and len(tags) > self.engine.tagLimit:
 			request.reply('Sorry, this command has a limit of %d tags, and therefore "%s" can\'t be processed.' % (self.engine.tagLimit, request.params))
 			return
